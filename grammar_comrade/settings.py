@@ -105,7 +105,7 @@ ROOT_URLCONF = 'grammar_comrade.urls'
 WSGI_APPLICATION = 'grammar_comrade.wsgi.application'
 
 TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
+    "/home/ubuntu/politiburo/templates" 
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
 )
