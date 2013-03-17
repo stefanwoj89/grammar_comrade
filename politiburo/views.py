@@ -12,18 +12,20 @@ def parse_string(el):
 
 def processArticle(string):
     try:
-        site = Site.objects.get(id=1)
+        site = Site.objects.get(id=6)
         try:
-            author = Author.objects.get(id=1)
+            author = Author.objects.get(id=6)
             article = Article.objects.create(content=string, site=site, author=author)
             article.save()
             print article
         except Author.DoesNotExist:
             author = Author.objects.create()
             author.save()
+            processArticle(string)
     except Site.DoesNotExist:
         site = Site.objects.create()
         site.save()
+        processArticle(string)
 
 
 def process_html(text):
@@ -45,8 +47,12 @@ def createNewArticle():
     results = process_html(rows)
 
 def findArticle():
-    article = Article.objects.get(id=2)
-    print article.content
+    try:
+        article = Article.objects.get(id=8)
+        print article.content
+    except Article.DoesNotExist:
+        createNewArticle()
+    #print article.content
 
 def index(request):
     #createNewArticle()
