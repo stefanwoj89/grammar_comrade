@@ -1,6 +1,7 @@
 from django.shortcuts import render_to_response
 from BeautifulSoup import BeautifulSoup
 from django.conf import settings
+from django.db import transaction
 import urllib2, ATD
 from politiburo.models import *
 
@@ -38,26 +39,42 @@ def index(request):
 def generate_article_score(content):
     ATD.setDefaultKey(settings.ATD_API_KEY)
     metrics = ATD.stats(content)
-    error_count = 0
     error_types = ['grammar','spell','style']
+    error_count = 0
     word_count = 0
+    grammar_error_count = 0
+    spell_error_count = 0
+    style_error_count = 0
     for m in metrics:
         if m.type in error_types:
             error_count+=m.value
+        if m.type == error_types[0]:
+            grammar_error_count+=m.value
+        if m.type == error_types[1]:
+            spell_error_count+=m.value
+        if m.type == error_types[2]:
+            style_error_count+=m.value
         if m.type == 'stats' and m.key == 'words':
             word_count = m.value
-    return error_count, word_count
+    return_dict = {
+        'error_count':error_count,
+        'word_count':word_count,
+        'grammar_error_count': grammar_error_count,
+        'spell_error_count': spell_error_count,
+        'style_error_count': style_error_count,
+    }
+    return return_dict
 
 def insert_article_score(article):
-    #TODO: test for zero division and commiting changes to db
-    error_count, word_count = generate_article_score(article.content)
-    percent_numerator = word_count - error_count
-    percent_score = float(percent_numerator)/float(word_count)
-    article.score = percent_score * 100
+    try:
+        stat_dict = generate_article_score(article.content)
+        percent_numerator = stat_dict['word_count'] - stat_dict['error_count']
+        percent_score = float(percent_numerator)/float(stat_dict['word_count'])
+        article.score = percent_score * 100
+        article.grammar_error_count = stat_dict['grammar_error_count']
+        article.spell_error_count = stat_dict['spell_error_count']
+        article.style_error_count = stat_dict['style_error_count']
+        article.word_count = stat_dict['word_count']
+    except ZeroDivisionError:
+        print  "Word count was apparently 0, oops."
 
-def get_atd_response(text):
-    ATD.setDefaultKey(settings.ATD_API_KEY)
-    errors = ATD.checkDocument(text)
-    for error in errors:
-            print "%s error for: %s **%s**" % (error.type, error.precontext, error.string)
-            print "some suggestions: %s" % (", ".join(error.suggestions),)

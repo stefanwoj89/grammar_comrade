@@ -11,6 +11,10 @@ class Article(models.Model):
     site = models.ForeignKey(Site)
     author = models.ForeignKey(Author)
     score = models.IntegerField(default=0)
+    grammar_error_count = models.IntegerField(default=0)
+    spell_error_count = models.IntegerField(default=0)
+    style_error_count = models.IntegerField(default=0)
+    word_count = models.IntegerField(default=0)
     content = models.TextField()
 
 class User(models.Model):
