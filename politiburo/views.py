@@ -4,20 +4,34 @@ from django.conf import settings
 import urllib2, ATD
 from politiburo.models import *
 
+
+def parse_string(el):
+   text = ''.join(el.findAll(text=True))
+   return text.strip()
+
+def createArticle(string):
+    print string
+    article = Article.objects.create(content=string)
+    article.save()
+
 def process_html(text):
 	string = ''
 	for row in text:
 		new_row = row('p')
-		for i in new_row:
+        for i in new_row:
+            #data = map(parse_string, i.findAll('<p>'))
+            #data = data[1:]
+            #print data
 			if new_row.index(i) != 0:
 				string+=str(i)
-	print string
+	createArticle(string)
+
 
 def index(request):
 	url = 'http://www.economist.com/news/united-states/21573165-years-republican-candidates-sound-awful-lot-last-years-same-again-please?fsrc=rss|ust'
 	soup = BeautifulSoup(urllib2.urlopen(url).read())
 	rows = soup('article')
-	process_html(rows)
+	results = process_html(rows)
 
 	return render_to_response('home/index.html', {})
 
