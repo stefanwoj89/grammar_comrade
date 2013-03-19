@@ -1,13 +1,24 @@
 # Django settings for grammar_comrade project.
-
+from datetime import timedelta
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+APPEND_SLASH = False
 
-ADMINS = (
-    # ('Your Name', 'your_email@example.com'),
+LOGIN_URL          = '/login-form/'
+LOGIN_REDIRECT_URL = '/'
+LOGIN_ERROR_URL    = '/login-error/'
+
+REGISTRATION_BACKEND = 'registration.backends.default.DefaultBackend'
+
+AUTHENTICATION_BACKENDS = (
+    'social_auth.backends.twitter.TwitterBackend',
+    'social_auth.backends.facebook.FacebookBackend',
+    'django.contrib.auth.backends.ModelBackend',
 )
-
-MANAGERS = ADMINS
+SOCIAL_AUTH_COMPLETE_URL_NAME = 'socialauth_complete'
+SOCIAL_AUTH_ASSOCIATE_URL_NAME = 'associate_complete'
+SOCIAL_AUTH_ASSOCIATE_BY_MAIL = True
+#MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
@@ -106,7 +117,7 @@ ROOT_URLCONF = 'grammar_comrade.urls'
 WSGI_APPLICATION = 'grammar_comrade.wsgi.application'
 
 TEMPLATE_DIRS = (
-    "/home/ubuntu/politiburo/templates" 
+    "/home/ubuntu/politiburo/templates"
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
 )
@@ -120,12 +131,16 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'politiburo',
     'south',
+    'social_auth',
+    'registration',
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
 )
 
+
+ACCOUNT_ACTIVATION_DAYS = 7
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error when DEBUG=False.
