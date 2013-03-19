@@ -2,13 +2,8 @@ from django.shortcuts import render_to_response
 from BeautifulSoup import BeautifulSoup
 from django.conf import settings
 from django.db import transaction
-import urllib2, ATD
+import urllib2, ATD, codecs, re
 from politiburo.models import *
-
-
-def parse_string(el):
-   text = ''.join(el.findAll(text=True))
-   return text.strip()
 
 def processArticle(string):
     try:
@@ -33,9 +28,6 @@ def process_html(text):
 	for row in text:
 		new_row = row('p')
         for i in new_row:
-            #data = map(parse_string, i.findAll('<p>'))
-            #data = data[1:]
-            #print data
 			if new_row.index(i) != 0:
 				string+=str(i)
 	processArticle(string)
@@ -49,10 +41,11 @@ def createNewArticle():
 def findArticle():
     try:
         article = Article.objects.get(id=8)
-        print article.content
+        santized_content = generate_article_score(article.content.replace('<p>', '').replace('</p>', '').encode('utf-8'))
+        print generate_article_score(santized_content)
+        insert_article_score(article, santized_content)
     except Article.DoesNotExist:
         createNewArticle()
-    #print article.content
 
 def index(request):
     #createNewArticle()
@@ -88,9 +81,9 @@ def generate_article_score(content):
     }
     return return_dict
 
-def insert_article_score(article):
+def insert_article_score(article, santized_content):
     try:
-        stat_dict = generate_article_score(article.content)
+        stat_dict = generate_article_score(santized_content)
         percent_numerator = stat_dict['word_count'] - stat_dict['error_count']
         percent_score = float(percent_numerator)/float(stat_dict['word_count'])
         article.score = percent_score * 100
@@ -98,6 +91,7 @@ def insert_article_score(article):
         article.spell_error_count = stat_dict['spell_error_count']
         article.style_error_count = stat_dict['style_error_count']
         article.word_count = stat_dict['word_count']
+        article.save()
     except ZeroDivisionError:
         print  "Word count was apparently 0, oops."
 
