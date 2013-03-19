@@ -4,6 +4,40 @@ from django.conf import settings
 from django.db import transaction
 import urllib2, ATD, codecs, re
 from politiburo.models import *
+import httplib, ssl, urllib2, socket
+class HTTPSConnectionV3(httplib.HTTPSConnection):
+    def __init__(self, *args, **kwargs):
+        httplib.HTTPSConnection.__init__(self, *args, **kwargs)
+
+    def connect(self):
+        sock = socket.create_connection((self.host, self.port), self.timeout)
+        if self._tunnel_host:
+            self.sock = sock
+            self._tunnel()
+        try:
+            self.sock = ssl.wrap_socket(sock, self.key_file, self.cert_file, ssl_version=ssl.PROTOCOL_SSLv3)
+        except ssl.SSLError, e:
+            print("Trying SSLv3.")
+            self.sock = ssl.wrap_socket(sock, self.key_file, self.cert_file, ssl_version=ssl.PROTOCOL_SSLv23)
+
+class HTTPSHandlerV3(urllib2.HTTPSHandler):
+    def https_open(self, req):
+        return self.do_open(HTTPSConnectionV3, req)
+
+urllib2.install_opener(urllib2.build_opener(HTTPSHandlerV3()))
+
+def run_scorer():
+    f = open('wootles','a')
+    f.write( "run_scorer ran")
+    f.close()
+
+def run_scraper():
+    print "run_scraper ran"
+
+def parse_string(el):
+   text = ''.join(el.findAll(text=True))
+   return text.strip()
+
 
 def processArticle(string):
     try:

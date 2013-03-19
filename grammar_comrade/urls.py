@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, include, url
 
+
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
 # admin.autodiscover()
@@ -7,6 +8,7 @@ from django.conf.urls import patterns, include, url
 urlpatterns = patterns('',
     # Examples:
     url(r'^$', 'politiburo.views.index', name='index'),
+    url(r'', include('social_auth.urls')),
     # url(r'^grammar_comrade/', include('grammar_comrade.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
