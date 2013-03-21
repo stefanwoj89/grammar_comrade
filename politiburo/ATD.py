@@ -43,7 +43,7 @@ def checkDocument(text, key=None):
         'key': key,
         'data': text,
     })
-    service = httplib.HTTPConnection("service.afterthedeadline.com")
+    service = httplib.HTTPConnection("127.0.0.1:1049")
     service.request("POST", "/checkDocument", params)
     response = service.getresponse()
     if response.status <> httplib.OK:
@@ -98,7 +98,7 @@ def stats(data, key=None):
         'key': key,
         'data': data,
     })
-    service = httplib.HTTPConnection("service.afterthedeadline.com")
+    service = httplib.HTTPConnection("127.0.0.1:1049")
     service.request("POST", "/stats", params)
     response = service.getresponse()
     if response.status <> httplib.OK:

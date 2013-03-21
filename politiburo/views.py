@@ -2,7 +2,8 @@ from django.shortcuts import render_to_response
 from BeautifulSoup import BeautifulSoup
 from django.conf import settings
 from django.db import transaction
-import urllib2, ATD, codecs, re
+from django.http import HttpResponse
+import urllib2, ATD, codecs, re, json
 from politiburo.models import *
 import httplib, ssl, urllib2, socket
 class HTTPSConnectionV3(httplib.HTTPSConnection):
@@ -76,6 +77,7 @@ def findArticle():
     try:
         article = Article.objects.get(id=8)
         santized_content = generate_article_score(article.content.replace('<p>', '').replace('</p>', '').encode('utf-8'))
+        print santized_content
         print generate_article_score(santized_content)
         insert_article_score(article, santized_content)
     except Article.DoesNotExist:
@@ -84,7 +86,8 @@ def findArticle():
 def index(request):
     #createNewArticle()
     findArticle()
-    return render_to_response('home/index.html', {})
+    return HttpResponse(json.dumps({ 'complete': True }), mimetype="application/json")
+    #return render_to_response('home/index.html', {})
 
 def generate_article_score(content):
     ATD.setDefaultKey(settings.ATD_API_KEY)
@@ -125,7 +128,7 @@ def insert_article_score(article, santized_content):
         article.spell_error_count = stat_dict['spell_error_count']
         article.style_error_count = stat_dict['style_error_count']
         article.word_count = stat_dict['word_count']
-        article.save()
+        #article.save()
     except ZeroDivisionError:
         print  "Word count was apparently 0, oops."
 

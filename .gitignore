@@ -8,3 +8,4 @@ try_*
 *bundle.js*
 ._*.*
 testnames
+/ENV
