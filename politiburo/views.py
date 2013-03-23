@@ -86,8 +86,8 @@ def findArticle():
 def index(request):
     #createNewArticle()
     findArticle()
-    return HttpResponse(json.dumps({ 'complete': True }), mimetype="application/json")
-    #return render_to_response('home/index.html', {})
+    #return HttpResponse(json.dumps({ 'complete': True }), mimetype="application/json")
+    return render_to_response('home/index.html', {})
 
 def generate_article_score(content):
     ATD.setDefaultKey(settings.ATD_API_KEY)
