@@ -1,6 +1,7 @@
 from django.db import models
 
 class Site(models.Model):
+    name =  models.CharField(max_length=50,default='')
     score = models.IntegerField(default=0)
     user_score = models.IntegerField(default=0)
 

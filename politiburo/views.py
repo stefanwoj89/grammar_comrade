@@ -6,34 +6,18 @@ from django.http import HttpResponse
 import urllib2, ATD, codecs, re, json
 from politiburo.models import *
 import httplib, ssl, urllib2, socket
-class HTTPSConnectionV3(httplib.HTTPSConnection):
-    def __init__(self, *args, **kwargs):
-        httplib.HTTPSConnection.__init__(self, *args, **kwargs)
 
-    def connect(self):
-        sock = socket.create_connection((self.host, self.port), self.timeout)
-        if self._tunnel_host:
-            self.sock = sock
-            self._tunnel()
-        try:
-            self.sock = ssl.wrap_socket(sock, self.key_file, self.cert_file, ssl_version=ssl.PROTOCOL_SSLv3)
-        except ssl.SSLError, e:
-            print("Trying SSLv3.")
-            self.sock = ssl.wrap_socket(sock, self.key_file, self.cert_file, ssl_version=ssl.PROTOCOL_SSLv23)
+def viewSite(request, site_id):
+    site = Site.objects.get(pk=site_id)
+    reviews = None
 
-class HTTPSHandlerV3(urllib2.HTTPSHandler):
-    def https_open(self, req):
-        return self.do_open(HTTPSConnectionV3, req)
+    return render_to_response('site.html', {'site': site, 'reviews': reviews })
 
-urllib2.install_opener(urllib2.build_opener(HTTPSHandlerV3()))
+def viewArticle(request, article_id):
+    article = Article.objects.get(pk=article_id)
+    reviews = None
 
-def run_scorer():
-    f = open('wootles','a')
-    f.write( "run_scorer ran")
-    f.close()
-
-def run_scraper():
-    print "run_scraper ran"
+    return render_to_response('article.html', {'article':article, 'reviews':reviews })
 
 def parse_string(el):
    text = ''.join(el.findAll(text=True))
@@ -84,9 +68,6 @@ def findArticle():
         createNewArticle()
 
 def index(request):
-    #createNewArticle()
-    findArticle()
-    #return HttpResponse(json.dumps({ 'complete': True }), mimetype="application/json")
     return render_to_response('home/index.html', {})
 
 def generate_article_score(content):
@@ -128,7 +109,7 @@ def insert_article_score(article, santized_content):
         article.spell_error_count = stat_dict['spell_error_count']
         article.style_error_count = stat_dict['style_error_count']
         article.word_count = stat_dict['word_count']
-        #article.save()
+        article.save()
     except ZeroDivisionError:
         print  "Word count was apparently 0, oops."
 
