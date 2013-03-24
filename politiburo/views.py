@@ -13,11 +13,6 @@ from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 
 
-#session = Session.objects.get(session_key=sessionid)
-#uid = session.get_decoded().get('_auth_user_id')
-#user = User.objects.get(pk=uid)
-#def viewLogin(request):
-#    login(request,user)
 def viewSite(request, site_id):
     site = Site.objects.get(pk=site_id)
     reviews = None
@@ -31,6 +26,7 @@ def viewArticle(request, article_id):
     sess = Session.objects.get(session_key=sessionid)
     uid = sess.get_decoded().get('_auth_user_id')
     user = User.objects.get(pk=uid)
+    #TODO if none, don't allow user to post, or allow anonymous
     if request.method == 'POST':
         review_form = ReviewForm(request.POST)
         if review_form.is_valid():
