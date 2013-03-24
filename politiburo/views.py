@@ -41,13 +41,14 @@ def parse_string(el):
 
 
 def processArticle(string):
+    print string
     try:
-        site = Site.objects.get(id=6)
+        site = Site.objects.get(id=24)
         try:
-            author = Author.objects.get(id=6)
+            author = Author.objects.get(id=16)
             article = Article.objects.create(content=string, site=site, author=author)
             article.save()
-            print article
+            print article.id
         except Author.DoesNotExist:
             author = Author.objects.create()
             author.save()
@@ -68,24 +69,30 @@ def process_html(text):
 	processArticle(string)
 
 def createNewArticle():
-    url = 'http://www.economist.com/news/united-states/21573165-years-republican-candidates-sound-awful-lot-last-years-same-again-please?fsrc=rss|ust'
+    #url = 'http://www.economist.com/news/united-states/21573165-years-republican-candidates-sound-awful-lot-last-years-same-again-please?fsrc=rss|ust'
+    #url = 'http://www.theatlantic.com/technology/print/2013/03/a-lizard-robot-to-delight-you-and-or-haunt-your-dreams/274263/'
+    url = 'http://www.economist.com/blogs/schumpeter/2013/03/bail-out-cyprus-0'
     soup = BeautifulSoup(urllib2.urlopen(url).read())
     rows = soup('article')
-    results = process_html(rows)
+    for g in rows:
+        print g('p')
+        #print g.find('div', { 'class' : 'article-content'})
+    #print new_rows
+    #print rows
+    results = process_html(new_rows)
 
 def findArticle():
     try:
-        article = Article.objects.get(id=8)
-        santized_content = generate_article_score(article.content.replace('<p>', '').replace('</p>', '').encode('utf-8'))
-        print santized_content
-        print generate_article_score(santized_content)
-        insert_article_score(article, santized_content)
+        article = Article.objects.get(id=10)
+        content = article.content.replace('<p>', '').replace('</p>', '').encode('utf-8')
+        #santized_content = generate_article_score(content)
+        insert_article_score(article, content)
     except Article.DoesNotExist:
         createNewArticle()
 
 def index(request):
-    #createNewArticle()
-    findArticle()
+    createNewArticle()
+    #findArticle()
     return HttpResponse(json.dumps({ 'complete': True }), mimetype="application/json")
     #return render_to_response('home/index.html', {})
 
@@ -121,6 +128,7 @@ def generate_article_score(content):
 def insert_article_score(article, santized_content):
     try:
         stat_dict = generate_article_score(santized_content)
+        print stat_dict
         percent_numerator = stat_dict['word_count'] - stat_dict['error_count']
         percent_score = float(percent_numerator)/float(stat_dict['word_count'])
         article.score = percent_score * 100
