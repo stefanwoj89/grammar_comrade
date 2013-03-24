@@ -6,7 +6,18 @@ from django.http import HttpResponse
 import urllib2, ATD, codecs, re, json
 from politiburo.models import *
 import httplib, ssl, urllib2, socket
+from politiburo.forms import *
+from django.template import RequestContext
+from django.contrib.sessions.models import Session
+from django.contrib.auth.models import User
+from django.http import HttpResponseRedirect
 
+
+#session = Session.objects.get(session_key=sessionid)
+#uid = session.get_decoded().get('_auth_user_id')
+#user = User.objects.get(pk=uid)
+#def viewLogin(request):
+#    login(request,user)
 def viewSite(request, site_id):
     site = Site.objects.get(pk=site_id)
     reviews = None
@@ -15,9 +26,24 @@ def viewSite(request, site_id):
 
 def viewArticle(request, article_id):
     article = Article.objects.get(pk=article_id)
-    reviews = None
-
-    return render_to_response('article.html', {'article':article, 'reviews':reviews })
+    reviews = Review.objects.filter(article=article).all()
+    sessionid = request.session._session_key
+    sess = Session.objects.get(session_key=sessionid)
+    uid = sess.get_decoded().get('_auth_user_id')
+    user = User.objects.get(pk=uid)
+    if request.method == 'POST':
+        review_form = ReviewForm(request.POST)
+        if review_form.is_valid():
+            review = Review()
+            review.user = user
+            review.article = article
+            review.comment = review_form.cleaned_data['comment']
+            review.score = review_form.cleaned_data['score']
+            review.save()
+            return HttpResponseRedirect('/')
+    else:
+        review_form = ReviewForm()
+    return render_to_response('article.html', {'article':article, 'reviews':reviews, 'review_form': review_form},context_instance=RequestContext(request))
 
 def parse_string(el):
    text = ''.join(el.findAll(text=True))

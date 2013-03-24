@@ -1,2 +1,10 @@
 {{article.site}}<br/>
-{{article.content}}
+{{article.content}}<br/>
+{% for r in reviews %}
+{{r.comment}},{{r.score}}
+{% endfor%}
+
+<form action="." method="post">{% csrf_token %}
+{{ review_form.as_p }}
+<input type="submit" value="Submit" />
+</form>

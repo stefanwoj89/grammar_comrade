@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.contrib.auth.models import User
 class Site(models.Model):
     name =  models.CharField(max_length=50,default='')
     score = models.IntegerField(default=0)
@@ -18,8 +18,8 @@ class Article(models.Model):
     word_count = models.IntegerField(default=0)
     content = models.TextField()
 
-class User(models.Model):
-    name = models.CharField(max_length=10)
+#class User(models.Model):
+#    name = models.CharField(max_length=10)
 
 class Review(models.Model):
     article = models.ForeignKey(Article)
