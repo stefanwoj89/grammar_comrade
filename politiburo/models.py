@@ -18,11 +18,10 @@ class Article(models.Model):
     word_count = models.IntegerField(default=0)
     content = models.TextField()
 
-#class User(models.Model):
-#    name = models.CharField(max_length=10)
 
 class Review(models.Model):
     article = models.ForeignKey(Article)
     user = models.ForeignKey(User)
     comment = models.TextField()
+    upvote_count = models.IntegerField(default=0)
     score = models.IntegerField(default=0)
