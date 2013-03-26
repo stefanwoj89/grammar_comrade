@@ -6,34 +6,40 @@ from django.http import HttpResponse
 import urllib2, ATD, codecs, re, json
 from politiburo.models import *
 import httplib, ssl, urllib2, socket
-class HTTPSConnectionV3(httplib.HTTPSConnection):
-    def __init__(self, *args, **kwargs):
-        httplib.HTTPSConnection.__init__(self, *args, **kwargs)
+from politiburo.forms import *
+from django.template import RequestContext
+from django.contrib.sessions.models import Session
+from django.contrib.auth.models import User
+from django.http import HttpResponseRedirect
 
-    def connect(self):
-        sock = socket.create_connection((self.host, self.port), self.timeout)
-        if self._tunnel_host:
-            self.sock = sock
-            self._tunnel()
-        try:
-            self.sock = ssl.wrap_socket(sock, self.key_file, self.cert_file, ssl_version=ssl.PROTOCOL_SSLv3)
-        except ssl.SSLError, e:
-            print("Trying SSLv3.")
-            self.sock = ssl.wrap_socket(sock, self.key_file, self.cert_file, ssl_version=ssl.PROTOCOL_SSLv23)
 
-class HTTPSHandlerV3(urllib2.HTTPSHandler):
-    def https_open(self, req):
-        return self.do_open(HTTPSConnectionV3, req)
+def viewSite(request, site_id):
+    site = Site.objects.get(pk=site_id)
+    reviews = None
 
-urllib2.install_opener(urllib2.build_opener(HTTPSHandlerV3()))
+    return render_to_response('site.html', {'site': site, 'reviews': reviews })
 
-def run_scorer():
-    f = open('wootles','a')
-    f.write( "run_scorer ran")
-    f.close()
-
-def run_scraper():
-    print "run_scraper ran"
+def viewArticle(request, article_id):
+    article = Article.objects.get(pk=article_id)
+    reviews = Review.objects.filter(article=article).all()
+    sessionid = request.session._session_key
+    sess = Session.objects.get(session_key=sessionid)
+    uid = sess.get_decoded().get('_auth_user_id')
+    user = User.objects.get(pk=uid)
+    #TODO if none, don't allow user to post, or allow anonymous
+    if request.method == 'POST':
+        review_form = ReviewForm(request.POST)
+        if review_form.is_valid():
+            review = Review()
+            review.user = user
+            review.article = article
+            review.comment = review_form.cleaned_data['comment']
+            review.score = review_form.cleaned_data['score']
+            review.save()
+            return HttpResponseRedirect('/')
+    else:
+        review_form = ReviewForm()
+    return render_to_response('article.html', {'article':article, 'reviews':reviews, 'review_form': review_form},context_instance=RequestContext(request))
 
 def parse_string(el):
    text = ''.join(el.findAll(text=True))
@@ -133,7 +139,7 @@ def insert_article_score(article, santized_content):
         article.spell_error_count = stat_dict['spell_error_count']
         article.style_error_count = stat_dict['style_error_count']
         article.word_count = stat_dict['word_count']
-        #article.save()
+        article.save()
     except ZeroDivisionError:
         print  "Word count was apparently 0, oops."
 
