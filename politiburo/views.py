@@ -119,6 +119,7 @@ def list(request):
             'average_score': calculate_average_site_score(Article.objects.filter(site=site))
         }
         data['sites'].append(site_meta_data)
+    data['sites'] = sorted(data['sites'], key=lambda k: k['average_score'], reverse=True)
     return render_to_response('home/list.html', {
         'sites': data['sites']
     })
