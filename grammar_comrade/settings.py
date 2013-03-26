@@ -1,6 +1,6 @@
 # Django settings for grammar_comrade project.
 from datetime import timedelta
-from local_settings import *
+#from local_settings import *
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 APPEND_SLASH = False

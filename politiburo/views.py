@@ -99,6 +99,30 @@ def findArticle():
 def index(request):
     return render_to_response('home/index.html', {})
 
+def calculate_average_site_score(articles):
+    cumlative_score = 0
+    total_articles = len(articles)
+    for article in articles: cumlative_score+=article.score
+    try:
+        average_score = float(cumlative_score)/float(total_articles)
+    except ZeroDivisionError:
+        average_score = 0 
+    return average_score
+
+def list(request):
+    sites = Site.objects.all()
+    data = { 'sites': [] }
+
+    for site in sites:
+        site_meta_data = {
+            'id': site.id,
+            'average_score': calculate_average_site_score(Article.objects.filter(site=site))
+        }
+        data['sites'].append(site_meta_data)
+    return render_to_response('home/list.html', {
+        'sites': data['sites']
+    })
+
 def generate_article_score(content):
     ATD.setDefaultKey(settings.ATD_API_KEY)
     metrics = ATD.stats(content)
