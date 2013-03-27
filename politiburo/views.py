@@ -11,7 +11,7 @@ from django.template import RequestContext
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
-
+from math import sqrt
 
 def viewSite(request, site_id):
     site = Site.objects.get(pk=site_id)
@@ -39,7 +39,7 @@ def viewArticle(request, article_id):
             return HttpResponseRedirect('/')
     else:
         review_form = ReviewForm()
-    return render_to_response('article.html', {'article':article, 'reviews':reviews, 'review_form': review_form},context_instance=RequestContext(request))
+    return render_to_response('article.html', {'article':article, 'reviews':review_sort(reviews), 'review_form': review_form},context_instance=RequestContext(request))
 
 def parse_string(el):
    text = ''.join(el.findAll(text=True))
@@ -99,6 +99,30 @@ def findArticle():
 def index(request):
     return render_to_response('home/index.html', {})
 
+def review_sort(reviews):
+    sorted_reviews = []
+    for r in reviews:
+        score = confidence(r.upvote_count,0)
+        tup = (r,score)
+        sorted_reviews.append(tup)
+    return_list sorted(sorted_reviews, key=itemgetter(1), reverse=True)
+    return return_list
+
+def _confidence(ups, downs):
+    n = ups + downs
+
+    if n == 0:
+        return 0
+
+    z = 1.0 #1.0 = 85%, 1.6 = 95%
+    phat = float(ups) / n
+    return sqrt(phat+z*z/(2*n)-z*((phat*(1-phat)+z*z/(4*n))/n))/(1+z*z/n)
+
+def confidence(ups, downs):
+    if ups + downs == 0:
+        return 0
+    else:
+        return _confidence(ups, downs)
 def calculate_average_site_score(articles):
     cumlative_score = 0
     total_articles = len(articles)
@@ -106,7 +130,7 @@ def calculate_average_site_score(articles):
     try:
         average_score = float(cumlative_score)/float(total_articles)
     except ZeroDivisionError:
-        average_score = 0 
+        average_score = 0
     return average_score
 
 def list(request):
