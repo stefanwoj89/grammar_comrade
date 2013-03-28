@@ -1,8 +1,11 @@
-{% extends "base/login_base.html" %}
+{% extends 'base/base.html' %}
 {% load i18n %}
 
-{% block login %}
+{% block title %} Login Screen {% endblock %}
 
+{% block content %}
+
+<div class="container">
 <div class="login">
     <div class="login-screen">
       <div class="login-icon">
@@ -24,6 +27,7 @@
         <a class="login-link" href="#">Lost your password?</a>
       </div>
     </div>
+</div>
 </div>
 
 {% endblock %}
