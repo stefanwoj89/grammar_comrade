@@ -105,7 +105,7 @@ def review_sort(reviews):
         score = confidence(r.upvote_count,0)
         tup = (r,score)
         sorted_reviews.append(tup)
-    return_list sorted(sorted_reviews, key=itemgetter(1), reverse=True)
+    return_list = sorted(sorted_reviews, key=itemgetter(1), reverse=True)
     return return_list
 
 def _confidence(ups, downs):
@@ -192,3 +192,11 @@ def insert_article_score(article, santized_content):
     except ZeroDivisionError:
         print  "Word count was apparently 0, oops."
 
+
+
+################### LOGIN VIEWS #####################
+
+def login(request):
+    return render_to_response('login/login.html', {
+        'login': True,
+    })
