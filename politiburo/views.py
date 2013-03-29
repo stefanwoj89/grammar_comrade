@@ -151,6 +151,7 @@ def list(request):
         'sites': data['sites']
     })
 
+
 def generate_article_score(content):
     ATD.setDefaultKey(settings.ATD_API_KEY)
     metrics = ATD.stats(content)
