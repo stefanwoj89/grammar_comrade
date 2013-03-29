@@ -1,5 +1,5 @@
 from django.shortcuts import render_to_response
-from BeautifulSoup import BeautifulSoup
+from BeautifulSoup import BeautifulSoup, BeautifulStoneSoup
 from django.conf import settings
 from django.db import transaction
 from django.http import HttpResponse
@@ -12,6 +12,11 @@ from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from math import sqrt
+from urlparse import urlparse
+
+
+def index(request):
+    return render_to_response('home/index.html', {})
 
 def viewSite(request, site_id):
     site = Site.objects.get(pk=site_id)
@@ -96,8 +101,6 @@ def findArticle():
     except Article.DoesNotExist:
         createNewArticle()
 
-def index(request):
-    return render_to_response('home/index.html', {})
 
 def review_sort(reviews):
     sorted_reviews = []
@@ -197,6 +200,37 @@ def insert_article_score(article, santized_content):
 ################### LOGIN VIEWS #####################
 
 def login(request):
+    get_url_list()
     return render_to_response('login/login.html', {
         'login': True,
     })
+
+#################### Pull List, Insert DB #############
+
+
+
+def get_url_list():
+    url_list = {
+        'Name': 'The Economist',
+        'urls': []
+    }
+
+    url = 'http://www.economist.com/feeds/print-sections/77729/china.xml'
+    xml = BeautifulStoneSoup(urllib2.urlopen(url).read())
+    urls = xml('link')
+    for greped_url in urls:
+        clean_url = str(greped_url).replace('<link>', '').replace('</link>', '')
+        url_obj = urlparse(clean_url)
+        if url_obj.path:
+            url_list['urls'].append(clean_url)
+    return url_list
+
+def get_site_content(url_list):
+    sites_content = []
+    return sites_content
+
+def insert_site_content(site, sites_content):
+    site = Site.objects.get(id=6)
+    return True
+
+
