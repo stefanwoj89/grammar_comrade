@@ -9,7 +9,7 @@ import politiburo.views
 urlpatterns = patterns('',
     # Examples:
     url(r'^$', 'politiburo.views.index', name='index'),
-    #(r'^accounts/', include('registration.urls')),
+    (r'^accounts/', include('registration.urls')),
     url(r'^list', 'politiburo.views.list', name='list'),
     url(r'', include('social_auth.urls')),
     url(r'^politiburo/site/(?P<site_id>\d+)/$', politiburo.views.viewSite, name='view_site'),
