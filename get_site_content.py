@@ -4,6 +4,8 @@ import grequests, urllib2
 from BeautifulSoup import BeautifulSoup, BeautifulStoneSoup
 #from politiburo.models import *
 from urlparse import urlparse
+from politiburo.views import generate_article_score
+from grammar_comrade import settings
 
 
 
@@ -27,22 +29,30 @@ def get_site_content(url_list):
     sites_content = []
 
     reqs=grequests.map((grequests.get(u) for u in url_list['urls']))
-    for r in reqs:
-        print r.content
-        print '###############################################'
-        print '###############################################'
-        print '###############################################'
-        print '###############################################'
-        print '###############################################'
-        print '###############################################'
-        print '###############################################'
-    return sites_content
+    for r in reqs: 
+        score = generate_article_score(process_url_content(r.content))
+        print score
+    return
 
 def insert_site_content(site, sites_content):
     #site = Site.objects.get(id=6)
     return True
 
 
-print get_site_content(get_url_list())
+def process_url_content(content):
+    string = ''
+    soup = BeautifulSoup(content)
+    rows = soup('article')
+    new_rows = []
+    for g in rows: new_rows.append(g('p'))
+    for row in new_rows:
+        string+=str(row)
+        #for i in row('p'):
+            #if new_row.index(i) != 0:
+                #string+=str(i)
+    return string
+
+
+get_site_content(get_url_list())
 
 print 'Complete.'

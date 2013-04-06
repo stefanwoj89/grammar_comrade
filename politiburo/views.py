@@ -70,28 +70,6 @@ def processArticle(string):
         processArticle(string)
 
 
-def process_html(text):
-	string = ''
-	for row in text:
-		new_row = row('p')
-        for i in new_row:
-			if new_row.index(i) != 0:
-				string+=str(i)
-	processArticle(string)
-
-def createNewArticle():
-    #url = 'http://www.economist.com/news/united-states/21573165-years-republican-candidates-sound-awful-lot-last-years-same-again-please?fsrc=rss|ust'
-    #url = 'http://www.theatlantic.com/technology/print/2013/03/a-lizard-robot-to-delight-you-and-or-haunt-your-dreams/274263/'
-    url = 'http://www.economist.com/blogs/schumpeter/2013/03/bail-out-cyprus-0'
-    soup = BeautifulSoup(urllib2.urlopen(url).read())
-    rows = soup('article')
-    for g in rows:
-        print g('p')
-        #print g.find('div', { 'class' : 'article-content'})
-    #print new_rows
-    #print rows
-    results = process_html(new_rows)
-
 def findArticle():
     try:
         article = Article.objects.get(id=10)
