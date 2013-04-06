@@ -3,3 +3,4 @@ Django-Registration
 Django-Social-Auth
 South
 psycopg2
+beautifulsoup
