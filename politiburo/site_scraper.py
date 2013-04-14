@@ -29,7 +29,7 @@ def get_site_content(url_list):
     sites_content = []
 
     reqs=grequests.map((grequests.get(u) for u in url_list['urls']))
-    for r in reqs: 
+    for r in reqs:
         score = generate_article_score(process_url_content(r.content))
         print score
     return
@@ -53,6 +53,6 @@ def process_url_content(content):
     return string
 
 
-get_site_content(get_url_list())
+#get_site_content(get_url_list())
 
 print 'Complete.'
